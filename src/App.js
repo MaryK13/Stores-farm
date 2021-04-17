@@ -1,9 +1,12 @@
 import {useState, useEffect} from 'react'
 import './App.css'
+import DetailedView from './components/DetailedView/DetailedView'
 
 function App() {
     const [stores, setStores] = useState([])
     const [storeToEdit, setStoreToEdit] = useState(0)
+    const [showDetailModal, setShowDetailModal] = useState(false)
+    const [storeToShow, setStoreToShow] = useState({})
 
     const onDeleteStore = (id) => {
         fetch('/stores/' + id, {
@@ -15,11 +18,11 @@ function App() {
             });
     }
 
-    const editButton = (id) => {
+    const onEditStore = (id) => {
         setStoreToEdit(id)
     }
 
-    const saveButton = (id) => {
+    const onSaveStore = (id) => {
         fetch('/stores/' + id, {
             method: 'PUT'
         })
@@ -30,6 +33,13 @@ function App() {
                 }
             });
     }
+
+    const onShowModal = (store) => {
+        setShowDetailModal(true)
+        setStoreToShow(store)
+    }
+
+    const onCloseModal = () => setShowDetailModal(false)
 
     useEffect(() => {
         fetch('/stores')
@@ -43,12 +53,18 @@ function App() {
 
     return (
         <div className="App">
+            {showDetailModal && <DetailedView
+                info={storeToShow}
+                footer={<button onClick={onCloseModal}>Закрыть</button>}
+                onClose={onCloseModal}
+            />}
             <table>
                 <thead>
                 <tr>
                     <th>Имя</th>
                     <th>Адрес</th>
                     <th>Время</th>
+                    <th />
                     <th />
                     <th />
                 </tr>
@@ -68,8 +84,11 @@ function App() {
                         <button onClick={() => onDeleteStore(store.id)}>Удалить</button>
                     </td>
                     <td>
-                        {storeToEdit !== store.id && <button onClick={() => editButton(store.id)}>Редактировать</button>}
-                        {storeToEdit === store.id && <button onClick={() => saveButton(store.id)}>Сохранить</button>}
+                        {storeToEdit !== store.id && <button onClick={() => onEditStore(store.id)}>Редактировать</button>}
+                        {storeToEdit === store.id && <button onClick={() => onSaveStore(store.id)}>Сохранить</button>}
+                    </td>
+                    <td>
+                        <button onClick={() => onShowModal(store)}>Детальный просмотр</button>
                     </td>
                 </tr>)}
                 </tbody>
